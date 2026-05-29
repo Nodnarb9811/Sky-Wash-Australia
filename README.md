@@ -43,8 +43,11 @@ npm run typecheck  # tsc --noEmit
 ```
 
 Requires Node 18+ (developed on Node 22). Then open **http://localhost:5173**
-in a desktop browser for the full 3D hero (phones / reduced-motion get the
+in a desktop browser for the full hero (phones / reduced-motion get the
 lightweight fallback by design).
+
+> **First run:** fetch the photoreal hero assets — `npm run fetch:hero`
+> (see [Hero assets](#hero-assets) below).
 
 ---
 
@@ -75,45 +78,74 @@ and the host rebuilds automatically.
 The hero is **one shared scroll-progress value (0 → 1)** sliced into 5 beats.
 
 ```
-0.00–0.08  Cold open       near-black void, haze, droplet, kicker line
-0.08–0.45  Assembly        ~25 exploded parts fly home, staggered & weighted
-0.45–0.62  Ignition        rotors spin up, LEDs ignite cyan, craft lifts to hover
-0.62–0.80  The Wash        nozzle fires; a water sheet wipes the screen clean
-0.80–1.00  Brand reveal    bright wordmark + tagline + CTA resolve
+0.00–0.08  Cold open      components in the dark; kicker line fades in
+0.08–0.62  Assemble       scroll scrubs a photoreal video: exploded → assembled
+0.62–0.80  The Wash       a water sheet sweeps down and wipes the screen clean
+0.80–1.00  Brand reveal   bright wordmark + tagline + CTA resolve
 ```
 
-- **`src/lib/beats.ts`** — the beat ranges and total pin length (`HERO_PIN_VH`).
+- **`src/lib/beats.ts`** — beat ranges + total pin length (`HERO_PIN_VH`).
   Retiming the whole film = editing this one file.
-- **`src/components/Hero.tsx`** — a tall spacer scrolls past a CSS `sticky`
-  stage (no GSAP pin pitfalls). One `ScrollTrigger` maps scroll → the shared
-  `progress` in the zustand store (`src/lib/store.ts`).
-- **`src/scene/*`** — the WebGL scene reads `progress` inside `useFrame`
-  (no React re-renders). DOM layers (`WashOverlay`, `BrandReveal`, `HeroKicker`)
-  read it via the `useHeroProgress` rAF hook, so everything scrubs in lockstep.
+- **`src/components/HeroVideo.tsx`** — the default hero. A tall spacer scrolls
+  past a CSS `sticky` stage (no GSAP pin pitfalls). One `ScrollTrigger` maps
+  scroll → the shared `progress` (zustand, `src/lib/store.ts`) **and** onto the
+  assembly video's playhead, so scrolling scrubs the drone together frame by
+  frame. The DOM layers (`WashOverlay`, `BrandReveal`, `HeroKicker`) read the
+  same progress via the `useHeroProgress` rAF hook, so everything stays in
+  lockstep.
 
-### Three render paths (accessibility & performance)
+### Two heroes in the box
+
+The drone visual is a **photoreal AI-generated assembly clip** (see
+[Hero assets](#hero-assets)). The original **real-time WebGL hero** (procedural,
+data-driven, swappable `.glb`) is preserved in `src/components/HeroFull.tsx` +
+`src/scene/*` — render `<HeroFull>` instead of `<HeroVideo>` in
+`src/components/Hero.tsx` to switch back. When `HeroFull` is unused the entire
+Three.js bundle is tree-shaken out of the build.
+
+### Render paths (accessibility & performance)
 
 `src/hooks/useDeviceCapability.ts` chooses one:
 
 | Capability | When | What renders |
 | --- | --- | --- |
-| `full` | capable desktop, WebGL, motion OK | live WebGL film (`HeroScene`, lazy-loaded) |
-| `fallback` | small screen / low-power / no WebGL | `HeroFallback` (no 3D) |
+| `full` | capable desktop, motion OK | `HeroVideo` — scroll-scrubbed assembly clip |
+| `fallback` | small screen / low-power | `HeroFallback` — static poster (scrubbing video is janky on phones) |
 | `reduced` | `prefers-reduced-motion` | `HeroFallback`, gentle fades only |
 
-The Three.js / R3F bundle is **dynamically imported** in `Hero.tsx`, so it is
-code-split into an async chunk that is **never downloaded** on the fallback or
-reduced-motion paths. Framer Motion honours reduced motion globally via
-`<MotionConfig reducedMotion="user">` in `src/App.tsx`.
+Framer Motion honours reduced motion globally via
+`<MotionConfig reducedMotion="user">` in `src/App.tsx`. The hero stage pauses
+work via `IntersectionObserver` when scrolled off screen. If the hero assets
+aren't present yet, a gradient base + poster keep the hero looking intentional —
+the page never appears broken.
 
-Performance hygiene: pixel ratio capped at 2, render loop paused via
-`IntersectionObserver` when the hero scrolls off screen, shared materials
-disposed on unmount, ACES tone mapping, tasteful bloom/DOF/grain.
+---
 
-> **TODO (mobile hero):** `HeroFallback` is currently a static, on-brand hero.
-> Drop in a pre-rendered assembly→wash `<video>` or scroll-scrubbed image
-> sequence (exported from the 3D scene) where marked in
-> `src/components/HeroFallback.tsx`.
+## Hero assets
+
+The drone hero is a **photoreal, AI-generated** set of assets (no stock model,
+no licensing risk). They are **not committed** to the repo (binary, regenerable)
+and live in your generator library on a CDN. Pull them in with one command:
+
+```bash
+npm run fetch:hero
+```
+
+This reads **`scripts/hero-assets.json`** and downloads into **`public/hero/`**:
+
+| File | Used by |
+| --- | --- |
+| `drone-assembled.png` | poster + brand-reveal/fallback image (Candidate A) |
+| `drone-exploded.png`  | first frame of the assembly |
+| `drone-assembly.mp4`  | the scroll-scrubbed exploded→assembled clip |
+
+If a CDN link expires, re-export the asset from your generator and update its
+`url` in `scripts/hero-assets.json`, then re-run `npm run fetch:hero`. On
+Vercel/Netlify, add `npm run fetch:hero` as a prebuild step (or commit the
+assets to a `public/hero/` you manage) so deploys include them.
+
+> The build sandbox these were created in can't reach the asset CDN, so the
+> files must be fetched on a machine with open network (your laptop or CI).
 
 ---
 

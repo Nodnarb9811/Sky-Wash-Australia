@@ -23,6 +23,22 @@ export function HeroFallback() {
           "radial-gradient(120% 90% at 50% 18%, #12303a 0%, #0e1318 45%, var(--c-void) 100%)",
       }}
     >
+      {/* Photoreal drone backdrop (pulled by `npm run fetch:hero`). If absent,
+          the gradient + glow below still read as an intentional brand hero. */}
+      <img
+        src="/hero/drone-assembled.png"
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-60"
+        onError={(e) => {
+          (e.currentTarget as HTMLImageElement).style.display = "none";
+        }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{ background: "linear-gradient(180deg, rgba(10,13,17,0.35) 0%, rgba(10,13,17,0.85) 70%, var(--c-void) 100%)" }}
+      />
       {/* Ambient aqua glow */}
       <div
         aria-hidden

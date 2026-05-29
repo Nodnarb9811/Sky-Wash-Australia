@@ -10,3 +10,7 @@ yarn-error.log*
 .env
 .env.*
 !.env.example
+
+# Generated photoreal hero assets (pulled via `npm run fetch:hero`)
+public/hero/*
+!public/hero/.gitkeep

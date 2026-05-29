@@ -1,0 +1,21 @@
+{
+  "_comment": "Hero asset manifest. Generated photoreal drone assets live in the user's generator library on a CDN this build sandbox cannot reach. Run `npm run fetch:hero` on a machine with open network (or at deploy) to download them into public/hero/. Re-export from the generator and update URLs here if they expire.",
+  "outputDir": "public/hero",
+  "assets": [
+    {
+      "file": "drone-assembled.png",
+      "url": "https://d8j0ntlcm91z4.cloudfront.net/user_30NuhYeUlQOte6RFTLJcnLTO2dc/hf_20260529_131246_5129d1ca-73e8-41ec-90ef-6309d5e742f4.png",
+      "note": "Candidate A — canonical assembled drone. Hero poster + brand-reveal/fallback image."
+    },
+    {
+      "file": "drone-exploded.png",
+      "url": "https://d8j0ntlcm91z4.cloudfront.net/user_30NuhYeUlQOte6RFTLJcnLTO2dc/hf_20260529_131938_19c13228-11b2-4b43-94bf-5297acd8a38f.png",
+      "note": "Exploded-components frame (start of the assembly)."
+    },
+    {
+      "file": "drone-assembly.mp4",
+      "url": "",
+      "note": "6s exploded->assembled assembly clip (scroll-scrubbed). URL filled once generated."
+    }
+  ]
+}
