@@ -42,7 +42,31 @@ npm run preview    # preview the production build
 npm run typecheck  # tsc --noEmit
 ```
 
-Requires Node 18+ (developed on Node 22).
+Requires Node 18+ (developed on Node 22). Then open **http://localhost:5173**
+in a desktop browser for the full 3D hero (phones / reduced-motion get the
+lightweight fallback by design).
+
+---
+
+## Deploying (shareable public URL)
+
+It's a static Vite build (`dist/`), so any static host works. Configs are
+included for the two easiest:
+
+**Vercel** (`vercel.json`)
+1. Push this branch to GitHub (done).
+2. At [vercel.com](https://vercel.com) → **Add New → Project** → import the repo.
+3. Vercel auto-detects Vite (build `npm run build`, output `dist`). Deploy.
+4. You get a public `*.vercel.app` URL you can open on any device.
+
+**Netlify** (`netlify.toml`)
+1. At [netlify.com](https://app.netlify.com) → **Add new site → Import an
+   existing project** → pick the repo.
+2. Settings are read from `netlify.toml` (build `npm run build`, publish
+   `dist`, Node 22). Deploy → public `*.netlify.app` URL.
+
+Either way: **no env vars or secrets required.** Push to the connected branch
+and the host rebuilds automatically.
 
 ---
 
