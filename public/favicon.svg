@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="7" fill="#0A0D11" />
+  <!-- Stylised drone + water droplet mark -->
+  <g fill="none" stroke="#1FB6D6" stroke-width="2" stroke-linecap="round">
+    <line x1="9" y1="9" x2="23" y2="23" />
+    <line x1="23" y1="9" x2="9" y2="23" />
+    <circle cx="9" cy="9" r="2.2" />
+    <circle cx="23" cy="9" r="2.2" />
+    <circle cx="9" cy="23" r="2.2" />
+    <circle cx="23" cy="23" r="2.2" />
+  </g>
+  <path d="M16 13c2.2 2.6 3.4 4.4 3.4 6a3.4 3.4 0 1 1-6.8 0c0-1.6 1.2-3.4 3.4-6z" fill="#F5F7F8" />
+</svg>

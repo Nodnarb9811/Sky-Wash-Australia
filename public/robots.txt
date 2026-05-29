@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://skywashaustralia.com.au/sitemap.xml

@@ -1,0 +1,139 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * ===========================================================================
+ * BRAND TOKENS — edit the palette and fonts HERE (single source of truth).
+ * Tailwind utilities (text-cyan, bg-void, font-display ...) map to these.
+ * ===========================================================================
+ */
+:root {
+  /* Palette */
+  --c-void: #0a0d11; /* near-black base */
+  --c-void-2: #0e1318; /* slightly lifted panel */
+  --c-ink: #11181f; /* card surface on dark */
+  --c-paper: #f5f7f8; /* off-white */
+  --c-mist: #aab6bd; /* muted body text on dark */
+  --c-cyan: #1fb6d6; /* precise water-cyan accent */
+  --c-cyan-soft: #7fdcef; /* lighter aqua highlight */
+  --c-teal: #128aa3; /* deeper teal for depth */
+  --c-teal-deep: #0b4f5e;
+
+  /* Fonts */
+  --font-display: "Space Grotesk";
+  --font-body: "Inter";
+
+  /* Layout */
+  --shell-px: clamp(1.25rem, 0.5rem + 4vw, 5rem);
+
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--c-void);
+  color: var(--c-paper);
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+/* Lenis smooth-scroll setup */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--c-cyan);
+  color: var(--c-void);
+}
+
+/* Accessible focus ring for keyboard users */
+:focus-visible {
+  outline: 2px solid var(--c-cyan);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 600;
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+/* Shared layout shell */
+.shell {
+  width: 100%;
+  max-width: var(--shell, 1280px);
+  margin-inline: auto;
+  padding-inline: var(--shell-px);
+}
+
+/* Film grain overlay (applied site-wide via <GrainOverlay/>) */
+.grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 60;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Reduced motion: neutralise transitions/animations globally as a safety net.
+   Components also branch on the usePrefersReducedMotion hook for richer control. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .grain {
+    display: none;
+  }
+}
+
+/* Utility: subtle aqua gradient text for the wordmark */
+.text-gleam {
+  background: linear-gradient(180deg, #ffffff 0%, var(--c-paper) 45%, var(--c-cyan-soft) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.hairline {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(245, 247, 248, 0.18), transparent);
+}
