@@ -1,0 +1,2 @@
+# Photoreal hero assets are downloaded here by `npm run fetch:hero`.
+# They are git-ignored (binary, regenerable). See scripts/hero-assets.json.

@@ -1,0 +1,16 @@
+{
+  "_comment": "Photoreal fallback assets (AI-generated). Used by the mobile / reduced-motion hero. Run `npm run fetch:hero` on a machine with open network to download into public/hero/. Re-export from the generator and update URLs if they expire.",
+  "outputDir": "public/hero",
+  "assets": [
+    {
+      "file": "drone-assembled.png",
+      "url": "https://d8j0ntlcm91z4.cloudfront.net/user_30NuhYeUlQOte6RFTLJcnLTO2dc/hf_20260529_131246_5129d1ca-73e8-41ec-90ef-6309d5e742f4.png",
+      "note": "Assembled drone still — fallback backdrop + OG candidate."
+    },
+    {
+      "file": "drone-assembly.mp4",
+      "url": "https://d8j0ntlcm91z4.cloudfront.net/user_30NuhYeUlQOte6RFTLJcnLTO2dc/hf_20260529_132252_27529103-8751-48cc-aee8-eafc6254033a.mp4",
+      "note": "6s assembly clip — autoplay loop on the small-screen fallback hero."
+    }
+  ]
+}

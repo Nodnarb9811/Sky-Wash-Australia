@@ -1,0 +1,22 @@
+# dependencies
+node_modules
+.pnp
+.pnp.js
+
+# next
+.next
+out
+dist
+build
+next-env.d.ts
+
+# misc
+.DS_Store
+*.local
+.env
+.env.*
+!.env.example
+
+# generated photoreal fallback assets (pulled via `npm run fetch:hero`)
+public/hero/*
+!public/hero/.gitkeep
