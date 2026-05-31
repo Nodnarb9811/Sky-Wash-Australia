@@ -5,6 +5,7 @@
   "description": "Sky Wash Australia — 'From Grime, Flight'. Award-tier cinematic, scroll-driven 3D experience (Next.js App Router).",
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/fetch-hero-assets.mjs || true",
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
