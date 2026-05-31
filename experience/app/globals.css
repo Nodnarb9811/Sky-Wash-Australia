@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * ===========================================================================
+ * BRAND TOKENS — edit palette + fonts HERE.
+ * Two-world system: MURK (Acts I–III) and CLARITY (Acts IV–V).
+ * The 3D scene grades between them via an animated LUT; the DOM uses these.
+ * ===========================================================================
+ */
+:root {
+  /* MURK */
+  --c-void: #0a0d11;
+  --c-murk: #12171c;
+  --c-grime: #2c322b; /* sick green-grey */
+  --c-ink: #11181f;
+
+  /* CLARITY */
+  --c-paper: #f5f7f8;
+  --c-mist: #9fb0b8;
+  --c-cyan: #1fb6d6;
+  --c-cyan-soft: #7fdcef;
+  --c-teal: #128aa3;
+  --c-teal-deep: #0b4f5e;
+
+  --font-display: "Space Grotesk";
+  --font-body: "Inter";
+  --shell-px: clamp(1.25rem, 0.5rem + 4vw, 5rem);
+
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--c-void);
+  color: var(--c-paper);
+  font-family: var(--font-body), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+body { overflow-x: hidden; }
+
+h1, h2, h3, h4 { font-family: var(--font-display), system-ui, sans-serif; font-weight: 600; margin: 0; }
+p { margin: 0; }
+
+::selection { background: var(--c-cyan); color: var(--c-void); }
+
+:focus-visible { outline: 2px solid var(--c-cyan); outline-offset: 3px; border-radius: 2px; }
+
+/* Lenis */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+.shell { width: 100%; max-width: var(--shell, 1320px); margin-inline: auto; padding-inline: var(--shell-px); }
+
+/* Custom reticle cursor: hide native on fine-pointer, non-touch */
+@media (pointer: fine) {
+  html.has-custom-cursor, html.has-custom-cursor * { cursor: none !important; }
+}
+
+.grain {
+  position: fixed; inset: 0; pointer-events: none; z-index: 60;
+  opacity: 0.05; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.text-gleam {
+  background: linear-gradient(180deg, #ffffff 0%, var(--c-paper) 45%, var(--c-cyan-soft) 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
+
+.hairline { height: 1px; background: linear-gradient(90deg, transparent, rgba(245,247,248,0.18), transparent); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .grain { display: none; }
+  html.has-custom-cursor, html.has-custom-cursor * { cursor: auto !important; }
+}
