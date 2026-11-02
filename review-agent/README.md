@@ -4,22 +4,30 @@ An AI agent that answers your Google reviews for you. Every day at 9pm it checks
 your Google Business Profile, has Claude write a personal reply to each new
 review, and posts it.
 
-**It only posts by itself when the reply is safe to post:**
+Replies are personalised (first name plus something specific from the review),
+follow a different approach for each star rating, and are always signed off
+**Coastcom Security Team**.
 
 | Review | What happens |
 | --- | --- |
-| 4–5 stars, nothing sensitive | Reply posted automatically. You get an email showing what was posted. |
-| 1–3 stars | **Not posted.** You get an email with a suggested reply to edit and post yourself. |
-| Any rating that mentions damage, injury, refunds, legal matters, a dispute, abuse, or looks like spam | **Not posted.** Emailed to you, same as above. |
+| 5 stars | Warm thanks that picks up on what they praised. Posted automatically. |
+| 4 stars | Thanks, and briefly acknowledges anything they'd improve. Posted automatically. |
+| 3 stars | Thanks for honest feedback, owns what wasn't right, invites them to get in touch. Posted automatically. |
+| 2 stars | Sincere apology, takes it offline. Posted automatically. |
+| 1 star | Calm apology, offers a direct line to fix it. Posted automatically. |
+| Any rating that mentions a break-in or incident, alarm/camera failure, police, insurance, footage, privacy, billing disputes, damage, injury, legal action, abuse, or looks like spam | **Not posted.** You get an email with a suggested reply to edit and post yourself. |
 | Already has a reply | Skipped. |
 
-You can change the star cut-off with `AUTO_REPLY_MIN_STARS` in
-`.github/workflows/review-agent.yml`. Set it to `6` if you want every reply
-emailed to you first and nothing posted on its own.
+You get an email after each run listing what was posted and anything held back.
 
-Your business details, tone and sign-off are in [`business.md`](business.md).
-**Fill in the TODOs there before turning it on.** Claude won't claim anything
-that isn't in that file.
+The per-star guidance, example replies, tone and "hold for the owner" rules are
+in [`business.md`](business.md). **Fill in the TODOs there** (services, area,
+licence, contact details) so replies can point unhappy customers to the right
+place. Claude won't claim anything that isn't in that file.
+
+To approve low-star replies yourself before they go up, raise
+`AUTO_REPLY_MIN_STARS` in `.github/workflows/review-agent.yml` (e.g. `3` holds
+1 and 2 star replies for you). The sign-off is `SIGN_OFF` in the same file.
 
 ---
 
@@ -80,7 +88,7 @@ In this repo: **Settings → Secrets and variables → Actions → New repositor
 | `GOOGLE_CLIENT_SECRET` | from step 1 |
 | `GOOGLE_REFRESH_TOKEN` | from step 2 |
 | `GOOGLE_LOCATION` | from step 2, e.g. `accounts/123/locations/456` |
-| `NOTIFY_TO` | where to email you, e.g. `hello@skywashaustralia.com.au` |
+| `NOTIFY_TO` | the email address to send summaries to |
 | `SMTP_HOST` | your email provider's SMTP server (Gmail: `smtp.gmail.com`, Microsoft 365: `smtp.office365.com`) |
 | `SMTP_PORT` | `587` |
 | `SMTP_USER` | the email address that sends the notifications |

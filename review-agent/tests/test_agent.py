@@ -66,7 +66,7 @@ def test_posts_good_reviews_and_skips_answered(tmp_path):
 
 
 def test_low_star_review_is_held_and_not_reemailed(tmp_path):
-    c = cfg(tmp_path)
+    c = cfg(tmp_path, auto_reply_min_stars=4)
     g = FakeGoogle([review("a", stars="TWO", text="Missed a spot")])
     d = FakeDrafter()
     posted, held = agent.run(c, g, d)
@@ -94,8 +94,24 @@ def test_dry_run_posts_nothing_and_keeps_no_state(tmp_path):
 
 
 def test_empty_or_long_draft_is_held(tmp_path):
-    c = cfg(tmp_path)
+    c = cfg(tmp_path, auto_reply_min_stars=4)
     r = review("a")
     assert agent.decide(r, Draft(reply="", needs_human=False, reason="x"), c)[0] is False
     assert agent.decide(r, Draft(reply="x" * 5000, needs_human=False, reason="ok"), c)[0] is False
     assert agent.decide(r, Draft(reply="Thanks!", needs_human=False, reason="ok"), c) == (True, "")
+
+
+def test_sign_off_added_once():
+    s = "Coastcom Security Team"
+    assert agent.add_sign_off("Hi Sam, thanks!", s) == "Hi Sam, thanks!\n\nCoastcom Security Team"
+    assert agent.add_sign_off("Hi Sam, thanks!\n\n— Coastcom Security Team", s) == (
+        "Hi Sam, thanks!\n\nCoastcom Security Team"
+    )
+    assert agent.add_sign_off("", s) == ""
+    assert agent.add_sign_off("Hi", "") == "Hi"
+
+
+def test_one_star_auto_posts_by_default(tmp_path):
+    g = FakeGoogle([review("a", stars="ONE", text="Slow to respond")])
+    posted, held = agent.run(cfg(tmp_path), g, FakeDrafter())
+    assert len(g.posted) == 1 and not held

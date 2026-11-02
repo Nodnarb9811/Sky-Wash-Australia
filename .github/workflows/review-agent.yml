@@ -57,8 +57,12 @@ jobs:
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           NOTIFY_TO: ${{ secrets.NOTIFY_TO }}
-          # Only reviews with at least this many stars are answered without you.
-          AUTO_REPLY_MIN_STARS: "4"
+          # Every reply ends with this sign-off.
+          SIGN_OFF: "Coastcom Security Team"
+          # Reviews of every rating (1-5 stars) get an automatic reply. Sensitive ones
+          # (incidents, disputes, legal, privacy...) are still held for you.
+          # Raise this (e.g. to "3") to approve low-star replies yourself.
+          AUTO_REPLY_MIN_STARS: "1"
           DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && 'true' || 'false' }}
         run: python agent.py
 
