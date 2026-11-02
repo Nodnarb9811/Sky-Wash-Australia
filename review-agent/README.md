@@ -1,6 +1,6 @@
 # Google review auto-responder
 
-An AI agent that answers your Google reviews for you. Every 30 minutes it checks
+An AI agent that answers your Google reviews for you. Every day at 9pm it checks
 your Google Business Profile, has Claude write a personal reply to each new
 review, and posts it.
 
@@ -94,8 +94,8 @@ reviews it holds back for you.
 1. **Actions** tab → **Google review auto-responder** → **Run workflow** with
    *Dry run* ticked. Open the run log to read the replies it *would* have
    posted. Nothing is posted.
-2. Happy with them? It's already scheduled. From now on it runs every 30
-   minutes. To pause it, open the workflow on the Actions tab → **⋯ → Disable workflow**.
+2. Happy with them? It's already scheduled. From now on it runs every day
+   at 9pm (Melbourne daylight-saving time; 8pm in winter). To pause it, open the workflow on the Actions tab → **⋯ → Disable workflow**.
 
 By default it only looks at reviews from the last 14 days, so it won't reply to
 your whole back catalogue on the first run. To answer older unreplied reviews
@@ -105,10 +105,11 @@ once, set `MAX_AGE_DAYS` (e.g. `365`) in the workflow for a single run.
 
 ## Notes
 
-- **GitHub Actions minutes:** a run takes under a minute. Every 30 minutes is
-  about 1,450 minutes a month, within the free 2,000 for private repos.
-  GitHub sometimes runs scheduled jobs a bit late, so expect replies 30–60
-  minutes after a review is posted.
+- **Timing:** GitHub schedules run in UTC, so the 9pm run shifts to 8pm when
+  daylight saving ends. To keep 9pm in winter, change the cron in
+  `.github/workflows/review-agent.yml` to `0 11 * * *`. GitHub sometimes
+  starts scheduled jobs a little late. A daily run uses about 30 of the 2,000
+  free Actions minutes a month.
 - **Running elsewhere:** it's a plain Python script. Set the same values as
   environment variables and run `python agent.py` from cron on any server.
 - **Tests:** `pip install pytest && python -m pytest tests`

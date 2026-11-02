@@ -1,10 +1,12 @@
 name: Google review auto-responder
 
-# Checks for new Google reviews every 30 minutes and replies to them.
+# Checks for new Google reviews once a day at 9pm Melbourne time and replies to them.
 # Also runnable by hand from the Actions tab ("Run workflow"), with an optional dry run.
 on:
   schedule:
-    - cron: "*/30 * * * *"
+    # GitHub schedules are in UTC. 10:00 UTC = 9pm AEDT (daylight saving, Oct-Apr)
+    # and 8pm AEST in winter. Use "0 11 * * *" for 9pm in winter instead.
+    - cron: "0 10 * * *"
   workflow_dispatch:
     inputs:
       dry_run:
@@ -35,7 +37,7 @@ jobs:
       - run: pip install -r requirements.txt
 
       # Remembers which held reviews we've already emailed you about, so you
-      # don't get the same email every 30 minutes.
+      # don't get the same email every day.
       - name: Restore state
         uses: actions/cache/restore@v4
         with:
