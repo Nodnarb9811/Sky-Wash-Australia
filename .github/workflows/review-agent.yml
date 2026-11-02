@@ -1,0 +1,68 @@
+name: Google review auto-responder
+
+# Checks for new Google reviews every 30 minutes and replies to them.
+# Also runnable by hand from the Actions tab ("Run workflow"), with an optional dry run.
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (draft replies, post nothing)"
+        type: boolean
+        default: true
+
+concurrency:
+  group: review-agent
+  cancel-in-progress: false
+
+jobs:
+  respond:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: review-agent
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: review-agent/requirements.txt
+
+      - run: pip install -r requirements.txt
+
+      # Remembers which held reviews we've already emailed you about, so you
+      # don't get the same email every 30 minutes.
+      - name: Restore state
+        uses: actions/cache/restore@v4
+        with:
+          path: review-agent/state.json
+          key: review-agent-state-${{ github.run_id }}
+          restore-keys: review-agent-state-
+
+      - name: Reply to new reviews
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
+          GOOGLE_LOCATION: ${{ secrets.GOOGLE_LOCATION }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          NOTIFY_TO: ${{ secrets.NOTIFY_TO }}
+          # Only reviews with at least this many stars are answered without you.
+          AUTO_REPLY_MIN_STARS: "4"
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && 'true' || 'false' }}
+        run: python agent.py
+
+      - name: Save state
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: review-agent/state.json
+          key: review-agent-state-${{ github.run_id }}

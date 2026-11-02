@@ -1,0 +1,114 @@
+# Google review auto-responder
+
+An AI agent that answers your Google reviews for you. Every 30 minutes it checks
+your Google Business Profile, has Claude write a personal reply to each new
+review, and posts it.
+
+**It only posts by itself when the reply is safe to post:**
+
+| Review | What happens |
+| --- | --- |
+| 4–5 stars, nothing sensitive | Reply posted automatically. You get an email showing what was posted. |
+| 1–3 stars | **Not posted.** You get an email with a suggested reply to edit and post yourself. |
+| Any rating that mentions damage, injury, refunds, legal matters, a dispute, abuse, or looks like spam | **Not posted.** Emailed to you, same as above. |
+| Already has a reply | Skipped. |
+
+You can change the star cut-off with `AUTO_REPLY_MIN_STARS` in
+`.github/workflows/review-agent.yml`. Set it to `6` if you want every reply
+emailed to you first and nothing posted on its own.
+
+Your business details, tone and sign-off are in [`business.md`](business.md).
+**Fill in the TODOs there before turning it on.** Claude won't claim anything
+that isn't in that file.
+
+---
+
+## Setup (about 30 minutes, plus waiting on Google)
+
+### 1. Get Google API access (do this first, approval can take a few days)
+
+Google keeps the reviews API locked until you request access.
+
+1. Go to <https://console.cloud.google.com/>, create a project (e.g. "Review agent").
+2. Fill in the **Business Profile API access request**:
+   <https://developers.google.com/my-business/content/prereqs#request-access>.
+   Use the same Google account that manages the Business Profile. Your profile
+   must be verified and active for 60+ days.
+3. Once approved, in the Cloud project go to **APIs & Services → Library** and enable:
+   - Google My Business API
+   - My Business Account Management API
+   - My Business Business Information API
+4. **APIs & Services → OAuth consent screen**: set it up as *External*, add your
+   own email as a test user, then **Publish app**. (If it stays in "Testing",
+   the sign-in expires after 7 days and the agent stops working.)
+5. **APIs & Services → Credentials → Create credentials → OAuth client ID**,
+   type **Desktop app**. Copy the **Client ID** and **Client secret**.
+
+### 2. Get your refresh token and location ID (on your own computer)
+
+```bash
+cd review-agent
+pip install -r requirements.txt
+```
+
+```bash
+GOOGLE_CLIENT_ID=your-id GOOGLE_CLIENT_SECRET=your-secret python get_refresh_token.py
+```
+
+Sign in with the Google account that manages the profile. It prints a
+**refresh token**. Then find your location:
+
+```bash
+GOOGLE_CLIENT_ID=your-id GOOGLE_CLIENT_SECRET=your-secret GOOGLE_REFRESH_TOKEN=your-token python agent.py --list-locations
+```
+
+Copy the value that looks like `accounts/123…/locations/456…`.
+
+### 3. Get a Claude API key
+
+Create one at <https://console.anthropic.com/settings/keys> and add some credit.
+Each reply costs well under one cent.
+
+### 4. Add the secrets to GitHub
+
+In this repo: **Settings → Secrets and variables → Actions → New repository secret**.
+
+| Secret | Value |
+| --- | --- |
+| `ANTHROPIC_API_KEY` | from step 3 |
+| `GOOGLE_CLIENT_ID` | from step 1 |
+| `GOOGLE_CLIENT_SECRET` | from step 1 |
+| `GOOGLE_REFRESH_TOKEN` | from step 2 |
+| `GOOGLE_LOCATION` | from step 2, e.g. `accounts/123/locations/456` |
+| `NOTIFY_TO` | where to email you, e.g. `hello@skywashaustralia.com.au` |
+| `SMTP_HOST` | your email provider's SMTP server (Gmail: `smtp.gmail.com`, Microsoft 365: `smtp.office365.com`) |
+| `SMTP_PORT` | `587` |
+| `SMTP_USER` | the email address that sends the notifications |
+| `SMTP_PASSWORD` | its password (Gmail needs an [app password](https://myaccount.google.com/apppasswords)) |
+
+The email settings are optional, but without them you won't hear about the
+reviews it holds back for you.
+
+### 5. Test it, then switch it on
+
+1. **Actions** tab → **Google review auto-responder** → **Run workflow** with
+   *Dry run* ticked. Open the run log to read the replies it *would* have
+   posted. Nothing is posted.
+2. Happy with them? It's already scheduled. From now on it runs every 30
+   minutes. To pause it, open the workflow on the Actions tab → **⋯ → Disable workflow**.
+
+By default it only looks at reviews from the last 14 days, so it won't reply to
+your whole back catalogue on the first run. To answer older unreplied reviews
+once, set `MAX_AGE_DAYS` (e.g. `365`) in the workflow for a single run.
+
+---
+
+## Notes
+
+- **GitHub Actions minutes:** a run takes under a minute. Every 30 minutes is
+  about 1,450 minutes a month, within the free 2,000 for private repos.
+  GitHub sometimes runs scheduled jobs a bit late, so expect replies 30–60
+  minutes after a review is posted.
+- **Running elsewhere:** it's a plain Python script. Set the same values as
+  environment variables and run `python agent.py` from cron on any server.
+- **Tests:** `pip install pytest && python -m pytest tests`
